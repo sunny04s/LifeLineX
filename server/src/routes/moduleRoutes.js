@@ -83,10 +83,12 @@ router.post("/:module", async (req, res) => {
     const issue = validate(module, req.body);
     if (issue) return res.status(400).json({ message: issue });
 
-    const data = { ...req.body };
+    const tempdata = { ...req.body };
+    const data={};
     for (const [field, rules] of Object.entries(definitions[module].fields)) {
-      if (data[field] === undefined && rules.default !== undefined) data[field] = rules.default;
-      if (rules.type === "number" && data[field] !== undefined) data[field] = Number(data[field]);
+      if (tempdata[field] === undefined && rules.default !== undefined) tempdata[field] = rules.default;
+      if (rules.type === "number" && tempdata[field] !== undefined) tempdata[field] = Number(tempdata[field]);
+      data[field]=tempdata[field];
     }
     const item = await ModuleRecord.create({ module, data, createdBy: req.user._id });
     res.status(201).json({ item });
